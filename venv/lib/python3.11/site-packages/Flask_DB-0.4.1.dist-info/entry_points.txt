@@ -1,0 +1,3 @@
+[flask.commands]
+db = flask_db.cli:db
+

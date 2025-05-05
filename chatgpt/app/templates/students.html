@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mark Attendance</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="container mt-4">
+    <h3>👩‍🎓 Manage Students</h3>
+
+    <!-- Manual Form -->
+    <form method="POST" class="mb-4">
+        <div class="row">
+            <div class="col">
+                <input name="name" class="form-control" placeholder="Student Name" required>
+            </div>
+            <div class="col">
+                <input name="admission_number" class="form-control" placeholder="Admission Number" required>
+            </div>
+            <div class="col">
+                <input name="class_name" class="form-control" placeholder="Class Name" required>
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Add Student</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- CSV Upload -->
+    <form method="POST" enctype="multipart/form-data" class="mb-4">
+        <label>Upload CSV (name, admission_number, class_name):</label>
+        <input type="file" name="csv_file" accept=".csv" required>
+        <button type="submit" class="btn btn-secondary btn-sm">Upload</button>
+    </form>
+
+    <!-- Student Table -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Admission #</th>
+                <th>Name</th>
+                <th>Class</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.admission_number }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.class_name }}</td>
+                <td>
+                    <a href="{{ url_for('main.edit_student', student_id=student.id) }}" class="btn btn-sm btn-info">Edit</a>
+                    <form method="POST" action="{{ url_for('main.delete_student', student_id=student.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this student?')">Delete</button>
+                    </form>
+                </td>                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

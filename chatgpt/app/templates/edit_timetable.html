@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Timetable Entry</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <div class="container-sm">
+    <h2 class="page-title">✏️ Edit Timetable Entry</h2>
+    <form method="POST" class="form-card">
+        <label>Day</label>
+        <select name="day" required>
+            {% for d in ['Monday','Tuesday','Wednesday','Thursday','Friday'] %}
+                <option value="{{ d }}" {% if entry.day == d %}selected{% endif %}>{{ d }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Subject</label>
+        <input type="text" name="subject" value="{{ entry.subject }}" required>
+
+        <label>Class</label>
+        <input type="text" name="class_name" value="{{ entry.class_name }}" required>
+
+        <label>Start Time</label>
+        <input type="time" name="start_time" value="{{ entry.start_time }}" required>
+
+        <label>End Time</label>
+        <input type="time" name="end_time" value="{{ entry.end_time }}" required>
+
+        <button type="submit" class="btn-primary">Update Entry</button>
+    </form>
+  </div>
+</body>
+</html>

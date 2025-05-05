@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mark Attendance</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container mt-4">
+        <h3>📘 Attendance Register — {{ class_name }}</h3>
+    
+        <form method="POST">
+            <label for="date">Date:</label>
+            <input type="date" name="date" value="{{ date }}" class="form-control mb-3" required>
+    
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Admission No.</th>
+                        <th>Name</th>
+                        <th>Present</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.admission_number }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>
+                            <input type="checkbox" name="status_{{ student.id }}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    
+            <button type="submit" class="btn btn-primary">Save Attendance</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Timetable Entry</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <div class="container-sm">
+    <h2 class="page-title">➕ Add Timetable Entry</h2>
+    <form method="POST" class="form-card">
+        <label>Day</label>
+        <select name="day" required>
+            <option disabled selected>Select Day</option>
+            {% for day in ['Monday','Tuesday','Wednesday','Thursday','Friday'] %}
+                <option>{{ day }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Subject</label>
+        <input type="text" name="subject" required>
+
+        <label>Class</label>
+        <input type="text" name="class_name" required>
+
+        <label>Start Time</label>
+        <input type="time" name="start_time" required>
+
+        <label>End Time</label>
+        <input type="time" name="end_time" required>
+
+        <button type="submit" class="btn-primary">Save Entry</button>
+    </form>
+  </div>
+</body>
+</html>

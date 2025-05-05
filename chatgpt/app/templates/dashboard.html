@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>MyClassroom</h2>
+            <nav>
+                <a href="#">📅 Timetable</a>
+                <a href="#">📝 Attendance</a>
+                <a href="#">📚 Lesson Plans</a>
+                <a href="#">📊 Reports</a>
+                <a href="{{ url_for('auth.logout') }}">🚪 Logout</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="dashboard-header">
+                <h3>Welcome, {{ current_user.name }}</h3>
+                <p>Manage your teaching tasks efficiently 🚀</p>
+            </header>
+
+            <section class="cards">
+                <a href="{{ url_for('timetable.view_timetable') }}" class="card">📅 Timetable Setup</a>
+                <a href="{{ url_for('main.manage_students') }}" class="card">👥 Manage Students</a>
+                <a href="{{ url_for('main.attendance', class_name='Class A') }}" class="card">📝 Mark Attendance</a>
+                <div class="card">📚 Plan Lessons</div>
+                <div class="card">📊 Generate Reports</div>
+            </section>
+        </main>
+
+    </div>
+
+</body>
+</html>

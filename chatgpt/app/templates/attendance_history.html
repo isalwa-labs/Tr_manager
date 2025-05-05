@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Attendance History</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+  <div class="container mt-4">
+    <h3>📖 Attendance History - {{ class_name }}</h3>
+
+    {% for date, entries in grouped.items() %}
+        <h5>{{ date.strftime('%Y-%m-%d') }}</h5>
+        <table class="table table-bordered mb-4">
+            <thead>
+                <tr>
+                    <th>Admission #</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td>{{ entry.admission }}</td>
+                    <td>{{ entry.name }}</td>
+                    <td>
+                        {% if entry.status == 'Present' %}
+                            ✅ Present
+                        {% else %}
+                            ❌ Absent
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</div>
+</body>
+</html>

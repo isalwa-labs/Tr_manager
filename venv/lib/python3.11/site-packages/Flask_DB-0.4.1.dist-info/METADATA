@@ -1,0 +1,30 @@
+Metadata-Version: 2.1
+Name: Flask-DB
+Version: 0.4.1
+Summary: A Flask CLI extension to help migrate and manage your SQL database.
+Home-page: https://github.com/nickjj/flask-db
+Author: Nick Janetakis
+Author-email: nick.janetakis@gmail.com
+License: MIT
+Platform: any
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Flask
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Database
+Requires-Python: >=3.6
+License-File: LICENSE
+Requires-Dist: Flask-SQLAlchemy (>=2.4)
+Requires-Dist: Flask (>=1.0)
+Requires-Dist: SQLAlchemy-Utils
+Requires-Dist: SQLAlchemy (>=1.2)
+Requires-Dist: alembic (>=1.3)
+Requires-Dist: setuptools
+
+UNKNOWN
+
