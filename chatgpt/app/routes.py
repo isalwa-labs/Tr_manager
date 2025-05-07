@@ -188,22 +188,52 @@ def manage_students():
 @main.route('/students/edit/<int:student_id>', methods=['GET', 'POST'])
 @login_required
 def edit_student(student_id):
-    from .models import Student
+    from .models import Student, AttendanceRecord
     from . import db
 
-    student = Student.query.get_or_404(student_id)
+    # Changed to left outer join and added order by for attendance records
+    student = (
+        Student.query
+        .outerjoin(AttendanceRecord)  # Use outerjoin instead of join
+        .filter(Student.id == student_id)
+        .first_or_404()
+    )
 
     if request.method == 'POST':
+        # Validate unique admission number except for current student
+        existing = Student.query.filter(
+            Student.admission_number == request.form.get('admission_number'),
+            Student.id != student_id
+        ).first()
+        
+        if existing:
+            flash('Admission number already exists', 'warning')
+            return render_template('edit_student.html', student=student)
+
         student.name = request.form.get('name')
         student.admission_number = request.form.get('admission_number')
         student.class_name = request.form.get('class_name')
+        
+        try:
+            db.session.commit()
+            flash('Student updated successfully!', 'success')
+            return redirect(url_for('main.manage_students'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while updating the student.', 'danger')
+            return render_template('edit_student.html', student=student)
 
-        db.session.commit()
-        flash('Student updated successfully!', 'success')
-        return redirect(url_for('main.manage_students'))
+    # Get attendance records separately
+    attendance_records = (
+        AttendanceRecord.query
+        .filter_by(student_id=student.id)
+        .order_by(AttendanceRecord.date.desc())
+        .all()
+    )
 
-    return render_template('edit_student.html', student=student)
-
+    return render_template('edit_student.html', 
+                         student=student, 
+                         attendance_records=attendance_records)
 
 @main.route('/students/delete/<int:student_id>', methods=['POST'])
 @login_required
