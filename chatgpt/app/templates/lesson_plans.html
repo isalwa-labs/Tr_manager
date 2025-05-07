@@ -1,81 +1,163 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Teacher Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<div class="container mt-4">
-    <h3>📚 Lesson Plans</h3>
+{% block title %}Lesson Plans - DigiTR{% endblock %}
 
-    <!-- Add Form -->
-    <form method="POST" class="row g-3 mb-4">
-        <div class="col-md-3"><input name="class_name" class="form-control" placeholder="Class" required></div>
-        <div class="col-md-3"><input name="subject" class="form-control" placeholder="Subject" required></div>
-        <div class="col-md-4"><input name="topic" class="form-control" placeholder="Topic" required></div>
-        <div class="col-md-3"><input type="date" name="start_date" class="form-control" required></div>
-        <div class="col-md-3"><input type="date" name="end_date" class="form-control" required></div>
-        <div class="col-md-2"><button type="submit" class="btn btn-success">Add</button></div>
-    </form>
+{% block content %}
+<div class="dashboard-container">
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="dashboard-header">
+                <h1>Lesson Plans</h1>
+                <p class="text-muted">Plan and track your lessons</p>
+            </div>
 
-    <!-- Progress Tracker -->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Class</th>
-                <th>Subject</th>
-                <th>Topic</th>
-                <th>Dates</th>
-                <th>Status</th>
-                <th>Progress</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for plan in plans %}
-            <tr>
-                <td>{{ plan.class_name }}</td>
-                <td>{{ plan.subject }}</td>
-                <td>{{ plan.topic }}</td>
-                <td>{{ plan.start_date }} to {{ plan.end_date }}</td>
-                <td>
-                    {% if plan.completed %}
-                        ✅ Completed
-                    {% elif plan.start_date <= current_date <= plan.end_date %}
-                        ⏳ In Progress
-                    {% else %}
-                        ⌛ Not Started
-                    {% endif %}
-                </td>
-                <td>
-                    {% if plan.completed %}
-                        <div class="progress">
-                            <div class="progress-bar bg-success" style="width: 100%;">100%</div>
+            <div class="dashboard-card mb-4">
+                <div class="card-header">
+                    <h3>Create New Lesson Plan</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="mdi mdi-google-classroom"></i> Class
+                            </label>
+                            <input name="class_name" class="form-control" placeholder="Enter class name" required>
                         </div>
-                    {% else %}
-                        {% set today = current_date %}
-                        {% set total_days = (plan.end_date - plan.start_date).days + 1 %}
-                        {% set elapsed = (today - plan.start_date).days %}
-                        {% set progress = (elapsed / total_days) * 100 if total_days > 0 else 0 %}
-                        <div class="progress">
-                            <div class="progress-bar bg-info" style="width: {{ progress if progress < 100 else 99 }}%;">
-                                {{ progress | round(0) }}%
-                            </div>
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="mdi mdi-book"></i> Subject
+                            </label>
+                            <input name="subject" class="form-control" placeholder="Enter subject" required>
                         </div>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if not plan.completed %}
-                    <form method="POST" action="{{ url_for('main.mark_lesson_complete', plan_id=plan.id) }}">
-                        <button type="submit" class="btn btn-sm btn-outline-success">Mark Complete</button>
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="mdi mdi-bookmark"></i> Topic
+                            </label>
+                            <input name="topic" class="form-control" placeholder="Enter topic" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="mdi mdi-calendar-start"></i> Start Date
+                            </label>
+                            <input type="date" name="start_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="mdi mdi-calendar-end"></i> End Date
+                            </label>
+                            <input type="date" name="end_date" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="mdi mdi-plus"></i> Create Plan
+                            </button>
+                        </div>
                     </form>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Active Lesson Plans</h3>
+                    <div class="card-actions">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary active" data-filter="all">All</button>
+                            <button class="btn btn-outline-secondary" data-filter="active">Active</button>
+                            <button class="btn btn-outline-secondary" data-filter="completed">Completed</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Topic</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for plan in plans %}
+                            <tr data-status="{{ 'completed' if plan.completed else 'active' }}">
+                                <td>{{ plan.class_name }}</td>
+                                <td>{{ plan.subject }}</td>
+                                <td>{{ plan.topic }}</td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ plan.start_date|date }} - {{ plan.end_date|date }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if plan.completed %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif plan.start_date <= current_date <= plan.end_date %}
+                                        <span class="badge bg-primary">In Progress</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not Started</span>
+                                    {% endif %}
+                                </td>
+                                <td style="width: 200px;">
+                                    {% if plan.completed %}
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: 100%;">100%</div>
+                                        </div>
+                                    {% else %}
+                                        {% set total_days = (plan.end_date - plan.start_date).days + 1 %}
+                                        {% set elapsed = (current_date - plan.start_date).days %}
+                                        {% set progress = (elapsed / total_days * 100) if total_days > 0 else 0 %}
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" 
+                                                 style="width: {{ progress if progress < 100 else 99 }}%;">
+                                                {{ progress|round }}%
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not plan.completed %}
+                                        <form method="POST" action="{{ url_for('main.mark_lesson_complete', plan_id=plan.id) }}"
+                                              style="display: inline;">
+                                            <button type="submit" class="btn btn-outline-success btn-sm">
+                                                <i class="mdi mdi-check"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
-</body>
-</html>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('[data-filter]').forEach(button => {
+    button.addEventListener('click', (e) => {
+        // Update active state
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        e.target.classList.add('active');
+
+        // Filter rows
+        const filter = e.target.dataset.filter;
+        document.querySelectorAll('tbody tr').forEach(row => {
+            if (filter === 'all' || row.dataset.status === filter) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

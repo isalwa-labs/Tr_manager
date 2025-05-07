@@ -1,3 +1,97 @@
+/* Dark theme table styles */
+:root[data-theme="dark"] {
+    --header-bg: #1a1a1a;
+    --header-text: #ffffff;
+    --table-hover: rgba(255, 255, 255, 0.05);
+    --row-border: #404040;
+    --table-bg: #1a1a1a;          /* Darker background for table */
+    --table-text: #ffffff;  
+    --table-text-secondary: #b0b0b0;      /* White text for visibility */
+    --table-row-bg: #2c2c2c;      /* Slightly lighter than background */
+    --bg-secondary: #2c2c2c; 
+    --table-cell-bg: #2c2c2c;      /* For consistent dark theme */
+}
+
+:root[data-theme="light"] {
+    --header-bg: #f8f9fa;
+    --header-text: #2d3748;
+    --table-hover: rgba(0, 0, 0, 0.05);
+    --row-border: #e2e8f0;
+}
+
+/* Table styles */
+.table {
+    width: 100%;
+    background-color: var(--table-bg);
+    border-collapse: collapse;
+}
+
+.table thead th {
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border-bottom: 2px solid var(--row-border);
+}
+
+.table tbody tr {
+    background-color: var(--table-row-bg);
+}
+
+.table tbody td {
+    padding: 1rem;
+    color: var(--table-text) !important;
+    background-color: var(--table-cell-bg);
+    border-bottom: 1px solid var(--row-border);
+}
+
+.table td span,
+.table td p,
+.table td div {
+    color: var(--table-text) !important;
+}
+
+/* Style for secondary text in cells */
+.table td small,
+.table td .text-muted {
+    color: var(--table-text-secondary) !important;
+}
+
+/* Style for class names, subjects, and topics */
+.table td .class-name,
+.table td .subject-name,
+.table td .topic-name {
+    color: var(--table-text);
+    font-weight: 500;
+}
+
+/* Table container */
+.table-responsive {
+    background-color: var(--table-bg);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    border: 1px solid var(--row-border);
+}
+
+/* Improved badge contrast */
+.badge {
+    color: var(--table-text) !important;
+    font-weight: 500;
+}
+
+/* Ensure buttons and links remain visible */
+.table td .btn {
+    color: inherit;
+}
+
+.table td a:not(.btn) {
+    color: var(--accent-color);
+}
+
 /* Navbar Styles */
 .navbar {
     height: 70px;

@@ -1,64 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Mark Attendance</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-<div class="container mt-4">
-    <h3>👩‍🎓 Manage Students</h3>
+{% extends "base.html" %}
 
-    <!-- Manual Form -->
-    <form method="POST" class="mb-4">
-        <div class="row">
-            <div class="col">
-                <input name="name" class="form-control" placeholder="Student Name" required>
-            </div>
-            <div class="col">
-                <input name="admission_number" class="form-control" placeholder="Admission Number" required>
-            </div>
-            <div class="col">
-                <input name="class_name" class="form-control" placeholder="Class Name" required>
-            </div>
-            <div class="col">
-                <button type="submit" class="btn btn-primary">Add Student</button>
-            </div>
-        </div>
-    </form>
+{% block title %}Manage Students - DigiTR{% endblock %}
 
-    <!-- CSV Upload -->
-    <form method="POST" enctype="multipart/form-data" class="mb-4">
-        <label>Upload CSV (name, admission_number, class_name):</label>
-        <input type="file" name="csv_file" accept=".csv" required>
-        <button type="submit" class="btn btn-secondary btn-sm">Upload</button>
-    </form>
+{% block content %}
+<div class="dashboard-container">
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="dashboard-header">
+                <h1>Student Management</h1>
+                <p class="text-muted">Add and manage your students</p>
+            </div>
 
-    <!-- Student Table -->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Admission #</th>
-                <th>Name</th>
-                <th>Class</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for student in students %}
-            <tr>
-                <td>{{ student.admission_number }}</td>
-                <td>{{ student.name }}</td>
-                <td>{{ student.class_name }}</td>
-                <td>
-                    <a href="{{ url_for('main.edit_student', student_id=student.id) }}" class="btn btn-sm btn-info">Edit</a>
-                    <form method="POST" action="{{ url_for('main.delete_student', student_id=student.id) }}" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this student?')">Delete</button>
+            <div class="dashboard-card mb-4">
+                <div class="card-header">
+                    <h3>Add New Student</h3>
+                    <div class="card-actions">
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#csvUpload">
+                            <i class="mdi mdi-file-upload"></i> Upload CSV
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Manual Form -->
+                    <form method="POST" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="mdi mdi-account"></i> Student Name
+                            </label>
+                            <input name="name" class="form-control" placeholder="Enter student name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="mdi mdi-identifier"></i> Admission Number
+                            </label>
+                            <input name="admission_number" class="form-control" placeholder="Enter admission number" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="mdi mdi-google-classroom"></i> Class Name
+                            </label>
+                            <input name="class_name" class="form-control" placeholder="Enter class name" required>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="mdi mdi-plus"></i> Add Student
+                            </button>
+                        </div>
                     </form>
-                </td>                
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+                    <!-- CSV Upload Form -->
+                    <div id="csvUpload" class="collapse mt-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5><i class="mdi mdi-file-excel"></i> Bulk Upload</h5>
+                                <p class="text-muted small">Upload a CSV file with columns: name, admission_number, class_name</p>
+                                <form method="POST" enctype="multipart/form-data">
+                                    <div class="input-group">
+                                        <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="mdi mdi-upload"></i> Upload
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Student List</h3>
+                    <div class="card-actions">
+                        <input type="text" id="studentSearch" class="form-control form-control-sm" 
+                               placeholder="Search students...">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Admission #</th>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.admission_number }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ student.class_name }}</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('main.edit_student', student_id=student.id) }}" 
+                                           class="btn btn-outline-info">
+                                            <i class="mdi mdi-pencil"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                onclick="deleteStudent({{ student.id }}, '{{ student.name }}')">
+                                            <i class="mdi mdi-delete"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Hidden Delete Form -->
+            <form id="deleteForm" method="POST" style="display: none;">
+            </form>
+        </div>
+    </main>
 </div>
-</body>
-</html>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function deleteStudent(id, name) {
+    if (confirm(`Are you sure you want to delete ${name}?`)) {
+        const form = document.getElementById('deleteForm');
+        form.action = "{{ url_for('main.delete_student', student_id=0) }}".replace('0', id);
+        form.submit();
+    }
+}
+
+document.getElementById('studentSearch').addEventListener('keyup', function(e) {
+    const search = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(search) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}
