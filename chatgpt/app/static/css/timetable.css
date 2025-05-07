@@ -1,0 +1,105 @@
+.timetable-container {
+    padding: 2rem;
+}
+
+.timetable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.timetable-card {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.timetable-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.day-column {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.schedule-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.schedule-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-time {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.schedule-subject {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.schedule-class {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.schedule-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.schedule-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+}
+
+.timetable-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 992px) {
+    .timetable-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .timetable-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .timetable-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .timetable-actions {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .timetable-grid {
+        grid-template-columns: 1fr;
+    }
+}

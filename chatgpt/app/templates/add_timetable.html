@@ -1,36 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Add Timetable Entry</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-  <div class="container-sm">
-    <h2 class="page-title">➕ Add Timetable Entry</h2>
-    <form method="POST" class="form-card">
-        <label>Day</label>
-        <select name="day" required>
-            <option disabled selected>Select Day</option>
-            {% for day in ['Monday','Tuesday','Wednesday','Thursday','Friday'] %}
-                <option>{{ day }}</option>
-            {% endfor %}
-        </select>
+{% extends "base.html" %}
 
-        <label>Subject</label>
-        <input type="text" name="subject" required>
+{% block title %}Add Timetable Entry - DigiTR{% endblock %}
 
-        <label>Class</label>
-        <input type="text" name="class_name" required>
+{% block content %}
+<div class="dashboard-container">
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="dashboard-header">
+                <h1>Add Timetable Entry</h1>
+                <p class="text-muted">Create a new schedule entry</p>
+            </div>
 
-        <label>Start Time</label>
-        <input type="time" name="start_time" required>
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <form method="POST" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="mdi mdi-calendar"></i> Day
+                            </label>
+                            <select name="day" class="form-select" required>
+                                <option disabled selected>Select Day</option>
+                                {% for day in ['Monday','Tuesday','Wednesday','Thursday','Friday'] %}
+                                    <option>{{ day }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-        <label>End Time</label>
-        <input type="time" name="end_time" required>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="mdi mdi-book"></i> Subject
+                            </label>
+                            <input type="text" name="subject" class="form-control" required>
+                        </div>
 
-        <button type="submit" class="btn-primary">Save Entry</button>
-    </form>
-  </div>
-</body>
-</html>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="mdi mdi-account-group"></i> Class
+                            </label>
+                            <input type="text" name="class_name" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">
+                                <i class="mdi mdi-clock-start"></i> Start Time
+                            </label>
+                            <input type="time" name="start_time" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">
+                                <i class="mdi mdi-clock-end"></i> End Time
+                            </label>
+                            <input type="time" name="end_time" class="form-control" required>
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="mdi mdi-plus"></i> Save Entry
+                            </button>
+                            <a href="{{ url_for('timetable.view_timetable') }}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
