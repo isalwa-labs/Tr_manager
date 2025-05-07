@@ -1,146 +1,238 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Teacher Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
+{% block title %}Reports Dashboard - DigiTR{% endblock %}
 
-<body>
-<div class="container mt-4">
-    <h2 class="mb-4">📊 Teaching Summary Dashboard</h2>
+{% block content %}
+<div class="dashboard-container">
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="dashboard-header">
+                <div>
+                    <h1>Reports Dashboard</h1>
+                    <p class="text-muted">Performance and progress overview</p>
+                </div>
+            </div>
 
-    <div class="row">
-        <!-- Attendance Summary Table -->
-        <div class="col-md-6">
-            <h4>✅ Attendance Summary</h4>
-            <table class="table table-bordered table-striped">
-                <thead class="table-light">
-                    <tr>
-                        <th>Class</th>
-                        <th>Attendance %</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in attendance_summary %}
-                    <tr>
-                        <td>{{ row.class_name }}</td>
-                        <td>{{ row.attendance_percent }}%</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <!-- Stats Summary Cards -->
+            <div class="stats-grid mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="mdi mdi-account-group"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Average Attendance</h3>
+                        <p class="stat-value">{{ overall_attendance }}%</p>
+                        <small class="text-muted">Across all classes</small>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="mdi mdi-book-check"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Lesson Completion</h3>
+                        <p class="stat-value">{{ overall_completion }}%</p>
+                        <small class="text-muted">All lesson plans</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Attendance Summary -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>
+                                <i class="mdi mdi-clipboard-check-outline"></i>
+                                Attendance Summary
+                            </h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Attendance %</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in attendance_summary %}
+                                    <tr>
+                                        <td>{{ row.class_name }}</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-{{ 'success' if row.attendance_percent >= 75 else 'warning' }}"
+                                                     style="width: {{ row.attendance_percent }}%">
+                                                    {{ row.attendance_percent }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if row.attendance_percent >= 75 else 'warning' }}">
+                                                {{ 'Good' if row.attendance_percent >= 75 else 'Needs Attention' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson Progress -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>
+                                <i class="mdi mdi-book-open-variant"></i>
+                                Lesson Progress
+                            </h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Class - Subject</th>
+                                        <th>Progress</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in lesson_summary %}
+                                    <tr>
+                                        <td>{{ row.group }}</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-info" 
+                                                     style="width: {{ row.percent_complete }}%">
+                                                    {{ row.percent_complete }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if row.percent_complete == 100 else 'info' }}">
+                                                {{ 'Completed' if row.percent_complete == 100 else 'In Progress' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>
+                                <i class="mdi mdi-chart-bar"></i>
+                                Attendance Overview
+                            </h3>
+                        </div>
+                        <div class="card-body p-4">
+                            <canvas id="attendanceChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>
+                                <i class="mdi mdi-chart-line"></i>
+                                Lesson Completion
+                            </h3>
+                        </div>
+                        <div class="card-body p-4">
+                            <canvas id="lessonChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- Lesson Completion Table -->
-        <div class="col-md-6">
-            <h4>📚 Lesson Plan Progress</h4>
-            <table class="table table-bordered table-striped">
-                <thead class="table-light">
-                    <tr>
-                        <th>Class - Subject</th>
-                        <th>Completion %</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in lesson_summary %}
-                    <tr>
-                        <td>{{ row.group }}</td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar bg-success" style="width: {{ row.percent_complete }}%;">
-                                    {{ row.percent_complete }}%
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Chart.js Visualizations -->
-    <div class="row mt-5">
-        <div class="col-md-6">
-            <h5>🎯 Attendance Overview</h5>
-            <canvas id="attendanceChart" height="200"></canvas>
-        </div>
-        <div class="col-md-6">
-            <h5>📚 Lesson Completion Overview</h5>
-            <canvas id="lessonChart" height="200"></canvas>
-        </div>
-    </div>
+    </main>
 </div>
+{% endblock %}
 
-<!-- Chart.js Library -->
+{% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Chart Rendering Script -->
 <script>
-    const attendanceLabels = {{ attendance_summary | map(attribute='class_name') | list | tojson }};
-    const attendanceData = {{ attendance_summary | map(attribute='attendance_percent') | list | tojson }};
-    const lessonLabels = {{ lesson_summary | map(attribute='group') | list | tojson }};
-    const lessonData = {{ lesson_summary | map(attribute='percent_complete') | list | tojson }};
+    // Get theme colors
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#ffffff' : '#2d3748';
+    const gridColor = isDark ? '#404040' : '#e2e8f0';
 
-    const attendanceChart = new Chart(document.getElementById('attendanceChart'), {
-        type: 'bar',
-        data: {
-            labels: attendanceLabels,
-            datasets: [{
-                label: 'Attendance %',
-                data: attendanceData,
-                backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
-                borderRadius: 6
-            }]
+    const chartOptions = {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { 
+                callbacks: { 
+                    label: ctx => `${ctx.parsed.y}%` 
+                },
+                backgroundColor: isDark ? '#2c2c2c' : '#ffffff',
+                titleColor: textColor,
+                bodyColor: textColor,
+                borderColor: gridColor,
+                borderWidth: 1
+            }
         },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                tooltip: { callbacks: { label: ctx => `${ctx.parsed.y}%` } }
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                grid: {
+                    color: gridColor,
+                },
+                ticks: { 
+                    color: textColor,
+                    callback: value => value + "%" 
+                }
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: { callback: value => value + "%" }
+            x: {
+                grid: {
+                    color: gridColor,
+                },
+                ticks: {
+                    color: textColor
                 }
             }
         }
+    };
+
+    new Chart(document.getElementById('attendanceChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ attendance_summary | map(attribute='class_name') | list | tojson }},
+            datasets: [{
+                data: {{ attendance_summary | map(attribute='attendance_percent') | list | tojson }},
+                backgroundColor: isDark ? 'rgba(54, 162, 235, 0.7)' : 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                borderRadius: 6
+            }]
+        },
+        options: chartOptions
     });
 
-    const lessonChart = new Chart(document.getElementById('lessonChart'), {
+    new Chart(document.getElementById('lessonChart'), {
         type: 'bar',
         data: {
-            labels: lessonLabels,
+            labels: {{ lesson_summary | map(attribute='group') | list | tojson }},
             datasets: [{
-                label: 'Lesson Completion %',
-                data: lessonData,
-                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                data: {{ lesson_summary | map(attribute='percent_complete') | list | tojson }},
+                backgroundColor: isDark ? 'rgba(75, 192, 192, 0.7)' : 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1,
+                borderWidth: 2,
                 borderRadius: 6
             }]
         },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                tooltip: { callbacks: { label: ctx => `${ctx.parsed.y}%` } }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: { callback: value => value + "%" }
-                }
-            }
-        }
+        options: chartOptions
     });
 </script>
-</body>
-</html>
+{% endblock %}
