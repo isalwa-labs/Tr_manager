@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<div class="container mt-4">
+    <h3>📚 Lesson Plans</h3>
+
+    <!-- Add Form -->
+    <form method="POST" class="row g-3 mb-4">
+        <div class="col-md-3"><input name="class_name" class="form-control" placeholder="Class" required></div>
+        <div class="col-md-3"><input name="subject" class="form-control" placeholder="Subject" required></div>
+        <div class="col-md-4"><input name="topic" class="form-control" placeholder="Topic" required></div>
+        <div class="col-md-3"><input type="date" name="start_date" class="form-control" required></div>
+        <div class="col-md-3"><input type="date" name="end_date" class="form-control" required></div>
+        <div class="col-md-2"><button type="submit" class="btn btn-success">Add</button></div>
+    </form>
+
+    <!-- Progress Tracker -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Class</th>
+                <th>Subject</th>
+                <th>Topic</th>
+                <th>Dates</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for plan in plans %}
+            <tr>
+                <td>{{ plan.class_name }}</td>
+                <td>{{ plan.subject }}</td>
+                <td>{{ plan.topic }}</td>
+                <td>{{ plan.start_date }} to {{ plan.end_date }}</td>
+                <td>
+                    {% if plan.completed %}
+                        ✅ Completed
+                    {% elif plan.start_date <= current_date <= plan.end_date %}
+                        ⏳ In Progress
+                    {% else %}
+                        ⌛ Not Started
+                    {% endif %}
+                </td>
+                <td>
+                    {% if plan.completed %}
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: 100%;">100%</div>
+                        </div>
+                    {% else %}
+                        {% set today = current_date %}
+                        {% set total_days = (plan.end_date - plan.start_date).days + 1 %}
+                        {% set elapsed = (today - plan.start_date).days %}
+                        {% set progress = (elapsed / total_days) * 100 if total_days > 0 else 0 %}
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: {{ progress if progress < 100 else 99 }}%;">
+                                {{ progress | round(0) }}%
+                            </div>
+                        </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not plan.completed %}
+                    <form method="POST" action="{{ url_for('main.mark_lesson_complete', plan_id=plan.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-success">Mark Complete</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

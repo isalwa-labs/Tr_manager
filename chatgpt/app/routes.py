@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required
-from datetime import date
+from flask_login import login_required, current_user
+from datetime import date, datetime
 from werkzeug.utils import secure_filename
 import csv
 import io
+from os import abort
 
 main = Blueprint('main', __name__)
 
@@ -14,7 +15,41 @@ def index():
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    from .models import Student, LessonPlan, TimetableEntry
+    from . import db
+    # Get current date
+    current_date = date.today()
+    
+    # Get total students
+    total_students = Student.query.count()
+    
+    # Get today's classes
+    today_classes = TimetableEntry.query.filter_by(
+        teacher_id=current_user.id,
+        day=current_date.strftime('%A')
+    ).count()
+    
+    # Get active lessons
+    active_lessons = LessonPlan.query.filter_by(
+        teacher_id=current_user.id,
+        completed=False
+    ).count()
+    
+    # Get recent activities (last 5)
+    recent_activities = []  # You'll need to implement your activity tracking
+    
+    # Get unique class names
+    class_names = db.session.query(Student.class_name).distinct().all()
+    class_names = [c[0] for c in class_names]
+
+    return render_template('dashboard.html',
+        current_date=current_date,
+        total_students=total_students,
+        today_classes=today_classes,
+        active_lessons=active_lessons,
+        recent_activities=recent_activities,
+        class_names=class_names
+    )
 
 @main.route('/attendance/<class_name>', methods=['GET', 'POST'])
 @login_required
@@ -181,3 +216,104 @@ def delete_student(student_id):
     db.session.commit()
     flash('Student deleted.', 'warning')
     return redirect(url_for('main.manage_students'))
+
+@main.route('/lesson-plans', methods=['GET', 'POST'])
+@login_required
+def lesson_plans():
+    from .models import LessonPlan
+    from . import db
+
+    if request.method == 'POST':
+        class_name = request.form.get('class_name')
+        subject = request.form.get('subject')
+        topic = request.form.get('topic')
+        start = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
+        end = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
+
+        plan = LessonPlan(
+            teacher_id=current_user.id,
+            class_name=class_name,
+            subject=subject,
+            topic=topic,
+            start_date=start,
+            end_date=end,
+            completed=False
+        )
+        db.session.add(plan)
+        db.session.commit()
+        flash('Lesson plan added!', 'success')
+        return redirect(url_for('main.lesson_plans'))
+
+    plans = LessonPlan.query.filter_by(teacher_id=current_user.id).order_by(LessonPlan.start_date).all()
+    current_date = date.today()
+    return render_template('lesson_plans.html', plans=plans,current_date=current_date)
+
+
+@main.route('/lesson-plans/complete/<int:plan_id>', methods=['POST'])
+@login_required
+def mark_lesson_complete(plan_id):
+    from .models import LessonPlan
+    from . import db
+
+    plan = LessonPlan.query.get_or_404(plan_id)
+    if plan.teacher_id != current_user.id:
+        abort(403)
+
+    plan.completed = True
+    db.session.commit()
+    flash('Lesson marked as complete.', 'success')
+    return redirect(url_for('main.lesson_plans'))
+
+@main.route('/reports/dashboard')
+@login_required
+def reports_dashboard():
+    from .models import LessonPlan, Student, AttendanceRecord
+    from . import db
+    teacher_id = current_user.id
+
+    # Attendance Summary
+    attendance_summary = []
+    classes = db.session.query(Student.class_name).distinct().all()
+
+    for (class_name,) in classes:
+        students = Student.query.filter_by(class_name=class_name).all()
+        total_days = 0
+        total_present = 0
+
+        for student in students:
+            total = AttendanceRecord.query.filter_by(student_id=student.id).count()
+            present = AttendanceRecord.query.filter_by(student_id=student.id, status='Present').count()
+            total_days += total
+            total_present += present
+
+        percent = (total_present / total_days * 100) if total_days > 0 else 0
+        attendance_summary.append({
+            'class_name': class_name,
+            'attendance_percent': round(percent, 2),
+        })
+
+    # Lesson Plan Summary
+    lesson_plans = LessonPlan.query.filter_by(teacher_id=teacher_id).all()
+    lesson_summary = {}
+
+    for plan in lesson_plans:
+        key = f"{plan.class_name} - {plan.subject}"
+        if key not in lesson_summary:
+            lesson_summary[key] = {'total': 0, 'completed': 0}
+        lesson_summary[key]['total'] += 1
+        if plan.completed:
+            lesson_summary[key]['completed'] += 1
+
+    lesson_summary_data = []
+    for key, data in lesson_summary.items():
+        percent = (data['completed'] / data['total'] * 100) if data['total'] > 0 else 0
+        lesson_summary_data.append({
+            'group': key,
+            'percent_complete': round(percent, 2),
+        })
+
+    return render_template(
+        'reports_dashboard.html',
+        attendance_summary=attendance_summary,
+        lesson_summary=lesson_summary_data
+    )

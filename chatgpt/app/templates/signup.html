@@ -1,25 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Signup</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <div class="form-container">
-        <h2>Sign Up</h2>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="flash">{{ messages[0] }}</div>
-          {% endif %}
-        {% endwith %}
-        <form method="POST">
-            <input name="name" type="text" placeholder="Full Name" required>
-            <input name="email" type="email" placeholder="Email" required>
-            <input name="password" type="password" placeholder="Password" required>
-            <button type="submit">Sign Up</button>
-            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
-        </form>
+{% extends "auth/base_auth.html" %}
+
+{% block title %}Sign Up - DigiTR{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <div class="auth-header">
+        <i class="mdi mdi-account-plus text-primary display-4"></i>
+        <h2>Create Account</h2>
+        <p class="text-muted">Get started with DigiTR</p>
     </div>
-</body>
-</html>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" class="auth-form">
+        <div class="form-group">
+            <label class="form-label">
+                <i class="mdi mdi-account"></i> Full Name
+            </label>
+            <input name="name" type="text" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                <i class="mdi mdi-email"></i> Email Address
+            </label>
+            <input name="email" type="email" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                <i class="mdi mdi-lock"></i> Password
+            </label>
+            <input name="password" type="password" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="mdi mdi-account-plus"></i> Create Account
+        </button>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <a href="{{ url_for('main.dashboard') }}" class="sidebar-brand">
+            <i class="mdi mdi-school"></i>
+            <span>DigiTR</span>
+        </a>
+    </div>
+    
+    <div class="sidebar-content">
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h6 class="nav-section-title">MAIN MENU</h6>
+                
+                <div class="nav-item">
+                    <a href="{{ url_for('main.dashboard') }}" class="nav-link {{ 'active' if request.endpoint == 'main.dashboard' }}">
+                        <i class="mdi mdi-view-dashboard"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ url_for('timetable.view_timetable') }}" class="nav-link {{ 'active' if request.endpoint == 'timetable.view_timetable' }}">
+                        <i class="mdi mdi-calendar"></i>
+                        <span>Timetable</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <h6 class="nav-section-title">MANAGEMENT</h6>
+                
+                <div class="nav-item">
+                    <a href="{{ url_for('main.manage_students') }}" class="nav-link {{ 'active' if request.endpoint == 'main.manage_students' }}">
+                        <i class="mdi mdi-account-group"></i>
+                        <span>Students</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ url_for('main.lesson_plans') }}" class="nav-link {{ 'active' if request.endpoint == 'main.lesson_plans' }}">
+                        <i class="mdi mdi-book-open-variant"></i>
+                        <span>Lesson Plans</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <h6 class="nav-section-title">REPORTS</h6>
+                
+                <div class="nav-item">
+                    <a href="{{ url_for('main.reports_dashboard') }}" class="nav-link {{ 'active' if request.endpoint == 'main.reports_dashboard' }}">
+                        <i class="mdi mdi-chart-bar"></i>
+                        <span>Analytics</span>
+                    </a>
+                </div>
+
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="mdi mdi-clipboard-text"></i>
+                        <span>Attendance Reports</span>
+                    </a>
+                    <ul class="dropdown-menu sidebar-dropdown">
+                        {% for class_name in ['1East', '1West', '2East', '2West', '3East', '3West'] %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('main.attendance_report', class_name=class_name) }}">
+                                    <i class="mdi mdi-account-group"></i> {{ class_name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+</aside>

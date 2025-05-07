@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from datetime import date
+from datetime import datetime
 from . import db
 
 class User(UserMixin, db.Model):
@@ -20,8 +20,9 @@ class TimetableEntry(db.Model):
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    class_name = db.Column(db.String(50))
+    name = db.Column(db.String(100), nullable=False)
+    admission_number = db.Column(db.String(50), unique=True, nullable=False)
+    class_name = db.Column(db.String(50), nullable=False)
 
 class AttendanceRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,4 +34,16 @@ class LessonProgress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     lesson_name = db.Column(db.String(100))
     progress = db.Column(db.Integer)  # e.g., from 0 to 100
-    teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # assuming teacher is a user in your system
+    teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class LessonPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    class_name = db.Column(db.String(100))
+    subject = db.Column(db.String(100))
+    topic = db.Column(db.String(200))
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    completed = db.Column(db.Boolean, default=False)
+
+    teacher = db.relationship('User', backref='lesson_plans')

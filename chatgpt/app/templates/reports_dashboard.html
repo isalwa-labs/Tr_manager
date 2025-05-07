@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+<div class="container mt-4">
+    <h2 class="mb-4">📊 Teaching Summary Dashboard</h2>
+
+    <div class="row">
+        <!-- Attendance Summary Table -->
+        <div class="col-md-6">
+            <h4>✅ Attendance Summary</h4>
+            <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Class</th>
+                        <th>Attendance %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in attendance_summary %}
+                    <tr>
+                        <td>{{ row.class_name }}</td>
+                        <td>{{ row.attendance_percent }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Lesson Completion Table -->
+        <div class="col-md-6">
+            <h4>📚 Lesson Plan Progress</h4>
+            <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Class - Subject</th>
+                        <th>Completion %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in lesson_summary %}
+                    <tr>
+                        <td>{{ row.group }}</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: {{ row.percent_complete }}%;">
+                                    {{ row.percent_complete }}%
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Chart.js Visualizations -->
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <h5>🎯 Attendance Overview</h5>
+            <canvas id="attendanceChart" height="200"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h5>📚 Lesson Completion Overview</h5>
+            <canvas id="lessonChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Chart Rendering Script -->
+<script>
+    const attendanceLabels = {{ attendance_summary | map(attribute='class_name') | list | tojson }};
+    const attendanceData = {{ attendance_summary | map(attribute='attendance_percent') | list | tojson }};
+    const lessonLabels = {{ lesson_summary | map(attribute='group') | list | tojson }};
+    const lessonData = {{ lesson_summary | map(attribute='percent_complete') | list | tojson }};
+
+    const attendanceChart = new Chart(document.getElementById('attendanceChart'), {
+        type: 'bar',
+        data: {
+            labels: attendanceLabels,
+            datasets: [{
+                label: 'Attendance %',
+                data: attendanceData,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => `${ctx.parsed.y}%` } }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { callback: value => value + "%" }
+                }
+            }
+        }
+    });
+
+    const lessonChart = new Chart(document.getElementById('lessonChart'), {
+        type: 'bar',
+        data: {
+            labels: lessonLabels,
+            datasets: [{
+                label: 'Lesson Completion %',
+                data: lessonData,
+                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => `${ctx.parsed.y}%` } }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { callback: value => value + "%" }
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

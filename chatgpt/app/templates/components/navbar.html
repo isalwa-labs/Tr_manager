@@ -1,0 +1,42 @@
+<nav class="navbar">
+    <div class="navbar-content">
+        <div class="navbar-left">
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="mdi mdi-menu"></i>
+            </button>
+            
+            <div class="navbar-search">
+                <div class="search-input">
+                    <i class="mdi mdi-magnify"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar-right">
+            <div class="theme-switch">
+                <button onclick="toggleTheme()" id="themeButton">
+                    <i class="mdi mdi-weather-night"></i>
+                </button>
+            </div>
+            
+            <div class="dropdown">
+                <button class="profile-button" data-bs-toggle="dropdown">
+                    <div class="profile-info">
+                        <span class="profile-name">{{ current_user.name }}</span>
+                        <span class="profile-role">Teacher</span>
+                    </div>
+                    <i class="mdi mdi-account-circle profile-icon"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#"><i class="mdi mdi-account"></i> Profile</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="mdi mdi-cog"></i> Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                        <i class="mdi mdi-logout"></i> Logout
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

@@ -1,43 +1,131 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Teacher Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
+{% block title %}Dashboard - DigiTR{% endblock %}
 
-<body class="dashboard-body">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <h2>MyClassroom</h2>
-            <nav>
-                <a href="#">📅 Timetable</a>
-                <a href="#">📝 Attendance</a>
-                <a href="#">📚 Lesson Plans</a>
-                <a href="#">📊 Reports</a>
-                <a href="{{ url_for('auth.logout') }}">🚪 Logout</a>
-            </nav>
-        </aside>
+{% block content %}
+<div class="dashboard-container">
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="dashboard-header">
+                <h1>Welcome, {{ current_user.name }}</h1>
+                <p class="text-muted">Here's what's happening today</p>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="mdi mdi-account-group"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Total Students</h3>
+                        <p class="stat-value">{{ total_students }}</p>
+                        <small class="text-muted">Across all classes</small>
+                    </div>
+                </div>
 
-        <main class="main-content">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="mdi mdi-calendar-check"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Today's Classes</h3>
+                        <p class="stat-value">{{ today_classes }}</p>
+                        <small class="text-muted">{{ current_date|date }}</small>
+                    </div>
+                </div>
 
-            <header class="dashboard-header">
-                <h3>Welcome, {{ current_user.name }}</h3>
-                <p>Manage your teaching tasks efficiently 🚀</p>
-            </header>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="mdi mdi-book-open-variant"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Active Lessons</h3>
+                        <p class="stat-value">{{ active_lessons }}</p>
+                        <small class="text-muted">In progress</small>
+                    </div>
+                </div>
+            </div>
 
-            <section class="cards">
-                <a href="{{ url_for('timetable.view_timetable') }}" class="card">📅 Timetable Setup</a>
-                <a href="{{ url_for('main.manage_students') }}" class="card">👥 Manage Students</a>
-                <a href="{{ url_for('main.attendance', class_name='Class A') }}" class="card">📝 Mark Attendance</a>
-                <div class="card">📚 Plan Lessons</div>
-                <div class="card">📊 Generate Reports</div>
-            </section>
-        </main>
+            <!-- Recent Activity -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Recent Activity</h3>
+                    <div class="card-actions">
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="mdi mdi-refresh"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>Details</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in recent_activities %}
+                            <tr>
+                                <td>{{ activity.date|datetime }}</td>
+                                <td>
+                                    <i class="mdi {{ activity.icon }}"></i>
+                                    {{ activity.type }}
+                                </td>
+                                <td>{{ activity.details }}</td>
+                                <td>
+                                    <span class="badge bg-{{ activity.status_color }}">
+                                        {{ activity.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-    </div>
-
-</body>
-</html>
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="card-header">
+                    <h3>Quick Actions</h3>
+                </div>
+                <div class="actions-grid">
+                    <a href="{{ url_for('main.manage_students') }}" class="action-card">
+                        <i class="mdi mdi-account-plus"></i>
+                        <span>Add Student</span>
+                    </a>
+                    <a href="{{ url_for('main.lesson_plans') }}" class="action-card">
+                        <i class="mdi mdi-book-plus"></i>
+                        <span>New Lesson</span>
+                    </a>
+                    <!-- Replace the attendance action card with this dropdown version -->
+                    <div class="action-card dropdown">
+                        <button class="action-button dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="mdi mdi-clipboard-check"></i>
+                            <span>Take Attendance</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% for class_name in class_names %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('main.attendance', class_name=class_name) }}">
+                                    <i class="mdi mdi-account-group"></i> {{ class_name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <a href="{{ url_for('main.reports_dashboard') }}" class="action-card">
+                        <i class="mdi mdi-file-document"></i>
+                        <span>Generate Report</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
